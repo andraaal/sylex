@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Token {
     pub token_type: TokenType,
     pub start: Location,
