@@ -154,9 +154,9 @@ impl<'a> Lexer<'a> {
                 c => {
                     if c.is_whitespace() {
                         // Skip whitespace; it has no semantics aside from delimiting other tokens
-                    } else if c.is_digit(10) {
+                    } else if c.is_ascii_digit() {
                         let mut acc = c.to_string();
-                        while let Some(next) = self.peek().filter(|d| d.is_digit(10)) {
+                        while let Some(next) = self.peek().filter(|d| d.is_ascii_digit()) {
                             acc.push(*next);
                             self.next();
                         }
@@ -164,7 +164,7 @@ impl<'a> Lexer<'a> {
                             acc.push('.');
                             self.next();
 
-                            while let Some(next) = self.peek().filter(|d| d.is_digit(10)) {
+                            while let Some(next) = self.peek().filter(|d| d.is_ascii_digit()) {
                                 acc.push(*next);
                                 self.next();
                             }
