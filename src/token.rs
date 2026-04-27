@@ -44,4 +44,5 @@ pub enum TokenType {
     DoublePipe,
     
     Invalid(String),
+    Comment(String),
 }

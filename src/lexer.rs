@@ -112,7 +112,39 @@ impl<'a> Lexer<'a> {
                     self.emit(TokenType::DoubleAmpersand);
                 }
                 '#' => {
-                    // Do comments here.
+                    let mut com = String::new();
+                    if self.next() == Some('(') {
+                        let mut depth = 1;
+                        loop {
+                            match self.next() {
+                                Some(c) => {
+                                    if c == '(' {
+                                        depth += 1;
+                                    } else if c == ')' {
+                                        depth -= 1;
+                                        if depth == 0 {
+                                            break;
+                                        }
+                                    } else {
+                                        com.push(c);
+                                    }
+                                }
+                                None => {
+                                    self.emit(TokenType::Invalid(
+                                        "lexer: Unclosed comment".to_string(),
+                                    ));
+                                }
+                            }
+                        }
+                    } else {
+                        loop {
+                            match self.next() {
+                                None | Some('\n') => break,
+                                Some(c) => com.push(c),
+                            }
+                        }
+                    }
+                    self.emit(TokenType::Comment(com));
                 }
                 c => {
                     if c.is_whitespace() {
@@ -157,7 +189,10 @@ impl<'a> Lexer<'a> {
                         }
                         self.emit(TokenType::Identifier(acc));
                     } else {
-                        self.emit(TokenType::Invalid(format!("lexer: Invalid character '{}'", c)));
+                        self.emit(TokenType::Invalid(format!(
+                            "lexer: Invalid character '{}'",
+                            c
+                        )));
                     }
                 }
             }
