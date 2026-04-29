@@ -1,7 +1,8 @@
 use sylex::{Lexer, Parser, TokenType};
+use sylex::interpreter::Interpreter;
 
 fn main() {
-    let source = "1 + 2 / 3 - 4 * 1.1;";
+    let source = "1 + 2;\n1 == 1;\n1 >= 2;\n2 / 3.1;\n1.5 * 2;\n5 - 3;\n10 > 5;\n3 < 4;\n1.0 / 2;\n1 / 2;\n";
     let lex = Lexer::new(source);
     let tokens = lex.lex();
     tokens.iter().for_each(|token| match token.token_type {
@@ -17,12 +18,22 @@ fn main() {
         .collect::<Vec<_>>();
     let parser = Parser::new(filtered);
     let res = parser.parse();
-    println!("Tokens:");
-    for expr in &res.exprs {
-        println!("{:?}", expr);
-    }
+
     println!("\nErrors:");
     for error in &res.errors {
         println!("{}", error);
+    }
+
+    println!("\n\nCode:");
+    println!("\n{}", source);
+
+    if res.errors.is_empty() {
+        let mut interpreter = Interpreter::new();
+        for expr in res.exprs {
+            match interpreter.interpret(expr) {
+                Ok(val) => println!("Result: {:?}", val),
+                Err(e) => println!("Interpretation error: {}", e),
+            }
+        }
     }
 }

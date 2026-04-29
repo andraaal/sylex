@@ -213,14 +213,14 @@ impl Parser {
                 let rhs = self.parse_precedence(rule.precedence)?;
                 Ok(Expr::And(Box::new(lhs), Box::new(rhs)))
             }
-            TokenType::ThreeWay => {
+            /*TokenType::ThreeWay => {
                 let rhs = self.parse_precedence(rule.precedence)?;
                 Ok(Expr::ThreeWay(Box::new(lhs), Box::new(rhs)))
             }
             TokenType::ThreeWayReverse => {
                 let rhs = self.parse_precedence(rule.precedence)?;
                 Ok(Expr::ThreeWayReverse(Box::new(lhs), Box::new(rhs)))
-            }
+            }*/
             tk => {
                 let err = Err(ParseError {
                     start: token.start,
