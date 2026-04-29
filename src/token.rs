@@ -46,6 +46,8 @@ pub enum TokenType {
     DoublePipe,
     ThreeWay,
     ThreeWayReverse,
+    True,
+    False,
     
     Invalid(String),
     Comment(String),
@@ -60,6 +62,8 @@ impl Display for Location {
 impl Display for TokenType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            TokenType::True => write!(f, "true"),
+            TokenType::False => write!(f, "false"),
             TokenType::Identifier(name) => write!(f, "{}", name),
             TokenType::Number(n) => write!(f, "{}", n),
             TokenType::Float(n) => write!(f, "{}", n),

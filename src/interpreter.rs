@@ -1,5 +1,5 @@
+use crate::expr::Expr;
 use crate::value::{Number, Value};
-use crate::Expr;
 use thiserror::Error;
 
 pub struct Interpreter {}
@@ -7,7 +7,7 @@ pub struct Interpreter {}
 #[derive(Error, Clone, Debug)]
 #[error("error in interpreter: {message}")]
 pub struct InterpretError {
-    message: String,
+    pub message: String,
 }
 
 impl Interpreter {
@@ -21,6 +21,21 @@ impl Interpreter {
 
     fn eval(&mut self, expr: Expr) -> Result<Value, InterpretError> {
         match expr {
+            Expr::Ternary(cond, then_branch, else_branch) => {
+                let condition = self.eval(*cond)?;
+                if condition.is_truthy() {
+                    self.eval(*then_branch)
+                } else {
+                    self.eval(*else_branch)
+                }
+            }
+            Expr::Call(name, args) => {
+                let mut evaluated_args = Vec::new();
+                for arg in *args {
+                    evaluated_args.push(self.eval(arg)?);
+                }
+                crate::builtin::call_builtin(name, evaluated_args)
+            }
             Expr::Plus(a, b) => self.eval_numeric_op(
                 *a,
                 *b,

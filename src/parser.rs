@@ -1,5 +1,5 @@
 use crate::expr::Expr;
-use crate::Location;
+use crate::token::Location;
 use crate::{Token, TokenType};
 use std::fmt::{Display, Formatter};
 use std::iter::Peekable;
@@ -59,9 +59,9 @@ impl Parser {
     }
 
     /// Parse and return expressions and errors
-    pub fn parse(mut self) -> ParseResult {
+    pub fn parse(mut self, strict_semicolons: bool) -> ParseResult {
         while self.peek().is_some() {
-            match self.stmt() {
+            match self.stmt(strict_semicolons) {
                 Ok(expr) => self.exprs.push(expr),
                 Err(err) => {
                     self.errors.push(err);
@@ -77,12 +77,16 @@ impl Parser {
     }
 
     /// Parse a statement (currently only an expression followed by semicolon)
-    fn stmt(&mut self) -> Result<Expr, ParseError> {
+    fn stmt(&mut self, strict_semicolons: bool) -> Result<Expr, ParseError> {
         let prev_rule = self.context;
         self.context = ParseContext::Statement;
 
         let expr = self.parse_precedence(0)?;
-        self.consume(TokenType::Semicolon, "expected ';' after expression")?;
+        if strict_semicolons {
+            self.consume(TokenType::Semicolon, "expected ';' after expression")?;
+        } else {
+            let _ = self.consume(TokenType::Semicolon, "expected ';' after expression");
+        }
 
         self.context = prev_rule;
         Ok(expr)
@@ -144,10 +148,28 @@ impl Parser {
             TokenType::Number(n) => Ok(Expr::Int(n)),
             TokenType::Float(f) => Ok(Expr::Float(f)),
             TokenType::Literal(l) => Ok(Expr::Literal(l)),
+            TokenType::True => Ok(Expr::Bool(true)),
+            TokenType::False => Ok(Expr::Bool(false)),
             TokenType::LeftParen => {
                 let expr = self.parse_precedence(0)?;
                 self.consume(TokenType::RightParen, "expected ')' after expression")?;
                 Ok(expr)
+            }
+            TokenType::Identifier(i) => {
+                self.consume(TokenType::LeftParen, "expected '(' after function call")?;
+                let mut args = Vec::new();
+                while let Err(_) =
+                    self.consume(TokenType::RightParen, "expected ')' after function call")
+                {
+                    if self.peek().is_none() {
+                        return Err(
+                            self.error_at_eof("unexpected EOF in function call".to_string())
+                        );
+                    }
+                    args.push(self.parse_precedence(0)?);
+                    // TODO check for commas once multi argument functions are implemented
+                }
+                Ok(Expr::Call(i, Box::new(args)))
             }
             tk => Err(ParseError {
                 start: token.start,
@@ -212,6 +234,16 @@ impl Parser {
             TokenType::DoubleAmpersand => {
                 let rhs = self.parse_precedence(rule.precedence)?;
                 Ok(Expr::And(Box::new(lhs), Box::new(rhs)))
+            }
+            TokenType::QuestionMark => {
+                let middle = self.parse_precedence(0)?;
+                self.consume(TokenType::Colon, "expected ':' as part of ternary operator")?;
+                let rhs = self.parse_precedence(rule.precedence)?;
+                Ok(Expr::Ternary(
+                    Box::new(lhs),
+                    Box::new(middle),
+                    Box::new(rhs),
+                ))
             }
             /*TokenType::ThreeWay => {
                 let rhs = self.parse_precedence(rule.precedence)?;
@@ -295,9 +327,11 @@ impl Parser {
         let rule = match tkt {
             TokenType::Number(_)
             | TokenType::Float(_)
+            | TokenType::True
+            | TokenType::False
             | TokenType::Literal(_)
             | TokenType::LeftParen => &PRIMARY_RULE,
-            TokenType::Bang | TokenType::Minus => &UNARY_RULE,
+            TokenType::Identifier(_) => &CALL_RULE,
             _ => return None,
         };
         Some(rule)
@@ -313,6 +347,9 @@ impl Parser {
             | TokenType::Lesser
             | TokenType::LesserEqual => &COMPARISON_RULE,
             TokenType::DoubleEqual | TokenType::BangEqual => &EQUALITY_RULE,
+            TokenType::DoublePipe => &OR_RULE,
+            TokenType::DoubleAmpersand => &AND_RULE,
+            TokenType::QuestionMark => &TERNARY_RULE,
             _ => return None,
         };
         Some(rule)
@@ -374,4 +411,32 @@ const UNARY_RULE: Rule = Rule {
     infix: false,
     precedence: 70,
     associativity: Associativity::Left,
+};
+
+const CALL_RULE: Rule = Rule {
+    prefix: true,
+    infix: false,
+    precedence: 90,
+    associativity: Associativity::Left,
+};
+
+const AND_RULE: Rule = Rule {
+    prefix: false,
+    infix: true,
+    precedence: 30,
+    associativity: Associativity::Left,
+};
+
+const OR_RULE: Rule = Rule {
+    prefix: false,
+    infix: true,
+    precedence: 20,
+    associativity: Associativity::Left,
+};
+
+const TERNARY_RULE: Rule = Rule {
+    prefix: false,
+    infix: true,
+    precedence: 10,
+    associativity: Associativity::Right,
 };

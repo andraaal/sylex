@@ -145,7 +145,7 @@ impl<'a> Lexer<'a> {
                                 }
                                 None => {
                                     self.emit(TokenType::Invalid(
-                                        "lexer: Unclosed comment".to_string(),
+                                        "Unclosed comment".to_string(),
                                     ));
                                     break;
                                 }
@@ -160,6 +160,24 @@ impl<'a> Lexer<'a> {
                         }
                     }
                     self.emit(TokenType::Comment(com));
+                }
+                '"' => {
+                    let mut lit = String::new();
+                    loop {
+                        match self.next() {
+                            None => {
+                                self.emit(TokenType::Invalid(
+                                    "Unclosed string literal".to_string(),
+                                ));
+                                break;
+                            }
+                            Some('"') => {
+                                self.emit(TokenType::Literal(lit));
+                                break;
+                            }
+                            Some(c) => lit.push(c),
+                        }
+                    }
                 }
                 c => {
                     if c.is_whitespace() {
@@ -181,7 +199,7 @@ impl<'a> Lexer<'a> {
                             match acc.parse::<f64>() {
                                 Ok(f) => self.emit(TokenType::Float(f)),
                                 Err(e) => self.emit(TokenType::Invalid(format!(
-                                    "lexer: Invalid float: {}",
+                                    "Invalid float: {}",
                                     e
                                 ))),
                             }
@@ -189,7 +207,7 @@ impl<'a> Lexer<'a> {
                             match acc.parse::<i64>() {
                                 Ok(i) => self.emit(TokenType::Number(i)),
                                 Err(e) => self.emit(TokenType::Invalid(format!(
-                                    "lexer: Invalid integer: {}",
+                                    "Invalid integer: {}",
                                     e
                                 ))),
                             }
@@ -202,10 +220,15 @@ impl<'a> Lexer<'a> {
                             acc.push(*next);
                             self.next();
                         }
-                        self.emit(TokenType::Identifier(acc));
+                        match acc.as_str() {
+                            "true" => self.emit(TokenType::True),
+                            "false" => self.emit(TokenType::False),
+                            _ => self.emit(TokenType::Identifier(acc))
+                        }
+                        
                     } else {
                         self.emit(TokenType::Invalid(format!(
-                            "lexer: Invalid character '{}'",
+                            "Invalid character '{}'",
                             c
                         )));
                     }
