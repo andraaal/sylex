@@ -31,10 +31,10 @@ jobs:
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
       - name: Rename executable
-        run: mv target/${{ matrix.target }}/release/mash${{ matrix.os == 'windows-latest' && '.exe' || '' }} target/${{ matrix.target }}/release/mash-${{ matrix.target }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+        run: mv target/${{ matrix.target }}/release/sylex${{ matrix.os == 'windows-latest' && '.exe' || '' }} target/${{ matrix.target }}/release/sylex-${{ matrix.target }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: target/${{ matrix.target }}/release/mash-${{ matrix.target }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+          files: target/${{ matrix.target }}/release/sylex-${{ matrix.target }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
