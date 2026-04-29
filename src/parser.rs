@@ -294,42 +294,42 @@ enum Associativity {
     Right,
 }
 
-static PRIMARY_RULE: Rule = Rule {
+const PRIMARY_RULE: Rule = Rule {
     prefix: true,
     infix: false,
     precedence: 100,
     associativity: Associativity::Left,
 };
 
-static TERM_RULE: Rule = Rule {
+const TERM_RULE: Rule = Rule {
     prefix: true,
     infix: false,
     precedence: 50,
     associativity: Associativity::Left,
 };
 
-static FACTOR_RULE: Rule = Rule {
+const FACTOR_RULE: Rule = Rule {
     prefix: true,
     infix: false,
     precedence: 60,
     associativity: Associativity::Left,
 };
 
-static COMPARISON_RULE: Rule = Rule {
+const COMPARISON_RULE: Rule = Rule {
     prefix: false,
     infix: true,
     precedence: 40,
     associativity: Associativity::Left,
 };
 
-static EQUALITY_RULE: Rule = Rule {
+const EQUALITY_RULE: Rule = Rule {
     prefix: false,
     infix: true,
     precedence: 30,
     associativity: Associativity::Left,
 };
 
-static UNARY_RULE: Rule = Rule {
+const UNARY_RULE: Rule = Rule {
     prefix: true,
     infix: false,
     precedence: 70,
