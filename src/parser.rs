@@ -181,6 +181,46 @@ impl Parser {
                 let rhs = self.parse_precedence(rule.precedence)?;
                 Ok(Expr::Div(Box::new(lhs), Box::new(rhs)))
             }
+            TokenType::Greater => {
+                let rhs = self.parse_precedence(rule.precedence)?;
+                Ok(Expr::Greater(Box::new(lhs), Box::new(rhs)))
+            }
+            TokenType::GreaterEqual => {
+                let rhs = self.parse_precedence(rule.precedence)?;
+                Ok(Expr::GreaterEq(Box::new(lhs), Box::new(rhs)))
+            }
+            TokenType::Lesser => {
+                let rhs = self.parse_precedence(rule.precedence)?;
+                Ok(Expr::Less(Box::new(lhs), Box::new(rhs)))
+            }
+            TokenType::LesserEqual => {
+                let rhs = self.parse_precedence(rule.precedence)?;
+                Ok(Expr::LessEq(Box::new(lhs), Box::new(rhs)))
+            }
+            TokenType::DoubleEqual => {
+                let rhs = self.parse_precedence(rule.precedence)?;
+                Ok(Expr::Eq(Box::new(lhs), Box::new(rhs)))
+            }
+            TokenType::BangEqual => {
+                let rhs = self.parse_precedence(rule.precedence)?;
+                Ok(Expr::Neq(Box::new(lhs), Box::new(rhs)))
+            }
+            TokenType::DoublePipe => {
+                let rhs = self.parse_precedence(rule.precedence)?;
+                Ok(Expr::Or(Box::new(lhs), Box::new(rhs)))
+            }
+            TokenType::DoubleAmpersand => {
+                let rhs = self.parse_precedence(rule.precedence)?;
+                Ok(Expr::And(Box::new(lhs), Box::new(rhs)))
+            }
+            TokenType::ThreeWay => {
+                let rhs = self.parse_precedence(rule.precedence)?;
+                Ok(Expr::ThreeWay(Box::new(lhs), Box::new(rhs)))
+            }
+            TokenType::ThreeWayReverse => {
+                let rhs = self.parse_precedence(rule.precedence)?;
+                Ok(Expr::ThreeWayReverse(Box::new(lhs), Box::new(rhs)))
+            }
             tk => {
                 let err = Err(ParseError {
                     start: token.start,

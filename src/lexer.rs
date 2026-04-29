@@ -83,7 +83,12 @@ impl<'a> Lexer<'a> {
                 '<' => {
                     if let Some('=') = self.peek() {
                         self.next();
-                        self.emit(TokenType::LesserEqual);
+                        if let Some('>') = self.peek() {
+                            self.next();
+                            self.emit(TokenType::ThreeWay);
+                        } else {
+                            self.emit(TokenType::LesserEqual);
+                        }
                     } else {
                         self.emit(TokenType::Lesser);
                     }
@@ -91,7 +96,12 @@ impl<'a> Lexer<'a> {
                 '>' => {
                     if let Some('=') = self.peek() {
                         self.next();
-                        self.emit(TokenType::GreaterEqual);
+                        if let Some('<') = self.peek() {
+                            self.next();
+                            self.emit(TokenType::ThreeWayReverse);
+                        } else {
+                            self.emit(TokenType::GreaterEqual);
+                        }
                     } else {
                         self.emit(TokenType::Greater);
                     }
@@ -206,7 +216,6 @@ impl<'a> Lexer<'a> {
         self.tokens
     }
 }
-
 
 #[cfg(test)]
 mod tests {

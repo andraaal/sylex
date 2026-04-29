@@ -44,6 +44,8 @@ pub enum TokenType {
     Percent,
     DoubleAmpersand,
     DoublePipe,
+    ThreeWay,
+    ThreeWayReverse,
     
     Invalid(String),
     Comment(String),
@@ -86,6 +88,8 @@ impl Display for TokenType {
             TokenType::Percent => write!(f, "%"),
             TokenType::DoubleAmpersand => write!(f, "&&"),
             TokenType::DoublePipe => write!(f, "||"),
+            TokenType::ThreeWay => write!(f, "<=>"),
+            TokenType::ThreeWayReverse => write!(f, ">=<"),
             TokenType::Invalid(i) => write!(f, "{}", i),
             TokenType::Comment(c) => write!(f, "{}", c),
         }
