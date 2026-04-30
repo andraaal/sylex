@@ -2,7 +2,7 @@
 
 `sylex` is a small hobby language implemented in Rust. It currently consists of only expressions, separated by
 semicolons. The rather small subset of expressions included makes this more of a fancy calculator than a real language,
-but we'll get there.
+but we'll get there. You can use `sylex` with a file, or you can use it without any arguments to start the REPL (Read - Evaluate - Print - Loop).
 
 Note: This README has been AI-generated, but was reviewed and corrected by a human (me).
 
@@ -56,6 +56,12 @@ cargo run
 ```
 
 In REPL mode, semicolons are optional.
+Also values are directly printed, meaning that this:
+```text
+print(3.5)
+```
+will first print `3.5` from the print function and then `true`, because print evaluates to true.
+I file execution mode only `3.5` will be printed.
 
 ### Run a file
 
